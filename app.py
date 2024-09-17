@@ -5,6 +5,7 @@
 # v1.02 - 10/9/24
 # v2.00 - 13/9/24
 # v2.01 - 14/9/24
+# v2.02 - 17/9/24
 # Note: Warnings are muted (Always double check output for error)
 # Not Yet Implemented: Validation and Error Handling
 
@@ -34,10 +35,6 @@ def progress_bar(progress, total):
     
     if progress == total:
         print(f'{colorama.Fore.GREEN}\r[{bar}] {percent:.2f}%') 
-    
-def clear_progress_bar():
-    sys.stdout.write('\r' + ' ' * 125 + '\r')
-    sys.stdout.flush()
 
 def crop_face(image_path):
     print(colorama.Fore.CYAN + '[1/6]: FACE DETECTION AND CROPPING')
@@ -302,7 +299,8 @@ def overlay_back_info(image_path, data_path, back_layout_path):
     dataframe = pandas.read_excel(
         data_path, skiprows = 6, 
         usecols = 'E, V:W, Y:Z, AB:AC, AE:AF', 
-        dtype = {'Person to notify Contact Number': str, 
+        dtype = {'Student ID': str,
+                 'Person to notify Contact Number': str, 
                  'Mother\'s Contact Number': str, 
                  'Father\'s Contact Number': str,
                  'Guardian\'s Contact Number': str})
@@ -319,7 +317,7 @@ def overlay_back_info(image_path, data_path, back_layout_path):
     phone_font = ImageFont.truetype(font_path, phone_size)
 
     counter = 0
-    progress_bar(counter, len(dataframe) - 1)
+    progress_bar(counter, len(dataframe))
     for _, row in dataframe.iterrows():
         image = Image.open(back_layout_path)
         draw = ImageDraw.Draw(image)
@@ -344,7 +342,7 @@ def overlay_back_info(image_path, data_path, back_layout_path):
             phone = ''
             no_contact_person.append(student_number)
             counter += 1
-            progress_bar(counter, len(dataframe) - 1)
+            progress_bar(counter, len(dataframe))
             continue
 
         name = name.upper()
@@ -362,14 +360,14 @@ def overlay_back_info(image_path, data_path, back_layout_path):
         image.save(output_image_path)
 
         counter += 1
-        progress_bar(counter, len(dataframe) - 1)
+        progress_bar(counter, len(dataframe))
         
 def main(image_path, data_path, front_layout_path, back_layout_path):
-    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.01')
+    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.02')
     os.system('cls')
     
     colorama.init()
-    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [14/9/24]")
+    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [17/9/24]")
 
     start_time = time.time()
 
@@ -387,7 +385,6 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
     overlay_front_info(image_path, data_path)
     overlay_back_info(image_path, data_path, back_layout_path)
 
-    clear_progress_bar()
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
     
     if (len(skipped_lrn)) > 0:
@@ -417,8 +414,8 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/GRADE 11 Unitas',
-        data_path = 'xlsx/GRADE 11 ABM - UNITAS.xlsx', 
-        front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
-        back_layout_path = 'layout/IDTemplateBack.png',
+        image_path = 'images/Grade 5 Our Lady of Lourdes',
+        data_path = 'xlsx/GRADE 5 - O.L. OF LOURDES.xlsx', 
+        front_layout_path = 'layout/IDTemplate(2)GradeSchool.png',
+        back_layout_path = 'layout/IDTemplateBack.png'
     )
