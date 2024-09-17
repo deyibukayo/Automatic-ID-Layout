@@ -341,9 +341,6 @@ def overlay_back_info(image_path, data_path, back_layout_path):
             name = ''
             phone = ''
             no_contact_person.append(student_number)
-            counter += 1
-            progress_bar(counter, len(dataframe))
-            continue
 
         name = name.upper()
         bounding_box = draw.textbbox((0, 0), name, font = name_font)
