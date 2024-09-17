@@ -1,11 +1,11 @@
 # ID PROCESSING BY BUKAYO
-# v0.01 - 30/8/24
-# v1.00 - 31/8/24 
-# v1.01 - 1/9/24
-# v1.02 - 10/9/24
-# v2.00 - 13/9/24
-# v2.01 - 14/9/24
-# v2.02 - 17/9/24
+# v0.01 - 30/08/24
+# v1.00 - 31/08/24 
+# v1.01 - 01/09/24
+# v1.02 - 10/09/24
+# v2.00 - 13/09/24
+# v2.01 - 14/09/24
+# v2.02 - 17/09/24
 # Note: Warnings are muted (Always double check output for error)
 # Not Yet Implemented: Validation and Error Handling
 
@@ -35,7 +35,7 @@ def progress_bar(progress, total):
     
     if progress == total:
         print(f'{colorama.Fore.GREEN}\r[{bar}] {percent:.2f}%') 
-
+    
 def crop_face(image_path):
     print(colorama.Fore.CYAN + '[1/6]: FACE DETECTION AND CROPPING')
     
@@ -221,7 +221,11 @@ def overlay_front_info(image_path, data_path):
     save_path = os.path.join(image_path, 'output/front_layout')
     layout_list = os.listdir(save_path)
     
-    dataframe = pandas.read_excel(data_path, skiprows = 6, usecols = 'C, E, O:P', dtype = {'Student ID': str})
+    dataframe = pandas.read_excel(
+        data_path, 
+        skiprows = 6, 
+        usecols = 'C, E, O:P', 
+        dtype = {'LRN': str, 'Student ID': str})
     dataframe = dataframe.dropna(how = 'all')
     dataframe['LRN'] = dataframe['LRN'].str.replace('LRN-', '', regex = False)
 
@@ -299,8 +303,7 @@ def overlay_back_info(image_path, data_path, back_layout_path):
     dataframe = pandas.read_excel(
         data_path, skiprows = 6, 
         usecols = 'E, V:W, Y:Z, AB:AC, AE:AF', 
-        dtype = {'Student ID': str,
-                 'Person to notify Contact Number': str, 
+        dtype = {'Person to notify Contact Number': str, 
                  'Mother\'s Contact Number': str, 
                  'Father\'s Contact Number': str,
                  'Guardian\'s Contact Number': str})
@@ -385,19 +388,19 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
     
     if (len(skipped_lrn)) > 0:
-        print(f'{colorama.Fore.RED}\nWARNING: These student numbers has no LRN from the datasheet.')
+        print(f'{colorama.Fore.RED}\nWARNING: {len(skipped_lrn)} student/s has no LRN from the datasheet.')
         for student_id in skipped_lrn:
-            print(f'{colorama.Fore.WHITE}{student_id}')
+            print(f'{colorama.Fore.WHITE}- {student_id}')
 
     if len(skipped_images) > 0:
-        print(f'{colorama.Fore.RED}\nWARNING: These image(s) files are skipped due to no matching student number from the datasheet.')
+        print(f'{colorama.Fore.RED}\nWARNING: {len(skipped_images)} image/s has no matching Student ID from the datasheet.')
         for filename in skipped_images:
-            print(f'{colorama.Fore.WHITE}{filename}')
+            print(f'{colorama.Fore.WHITE}- {filename}')
     
     if len(no_contact_person) > 0:
-        print(f'{colorama.Fore.RED}\nWARNING: These student numbers has no contact information from datasheet.')
+        print(f'{colorama.Fore.RED}\nWARNING: {len(no_contact_person)} student/s has no contact information from datasheet.')
         for student_id in no_contact_person:
-            print(f'{colorama.Fore.WHITE}{student_id}')
+            print(f'{colorama.Fore.WHITE}- {student_id}')
 
     end_time = time.time()
     elapsed_time = end_time - start_time
@@ -411,8 +414,8 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/Grade 5 Our Lady of Lourdes',
-        data_path = 'xlsx/GRADE 5 - O.L. OF LOURDES.xlsx', 
-        front_layout_path = 'layout/IDTemplate(2)GradeSchool.png',
-        back_layout_path = 'layout/IDTemplateBack.png'
+        image_path = 'images/GRADE 11 Unitas',
+        data_path = 'xlsx/GRADE 11 ABM - UNITAS.xlsx', 
+        front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
+        back_layout_path = 'layout/IDTemplateBack.png',
     )
