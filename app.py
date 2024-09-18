@@ -10,8 +10,8 @@
 # Not Yet Implemented: Validation and Error Handling
 
 import os
+import re
 import cv2
-import sys
 import time
 import numpy
 import pandas
@@ -309,15 +309,16 @@ def overlay_back_info(image_path, data_path, back_layout_path):
                  'Guardian\'s Contact Number': str})
     dataframe = dataframe.dropna(how = 'all')
 
-    font_path = 'font/Montserrat/Montserrat-Bold.ttf'
+    font_path_name = 'font/Montserrat/Montserrat-Bold.ttf'
+    font_path_phone = 'font/Montserrat/Montserrat-SemiBold.ttf'
     
     name_size = 200
     name_position = 400
-    name_font = ImageFont.truetype(font_path, name_size)
+    name_font = ImageFont.truetype(font_path_name, name_size)
 
     phone_size = 200
     phone_position = 630
-    phone_font = ImageFont.truetype(font_path, phone_size)
+    phone_font = ImageFont.truetype(font_path_phone, phone_size)
 
     counter = 0
     progress_bar(counter, len(dataframe))
@@ -345,7 +346,29 @@ def overlay_back_info(image_path, data_path, back_layout_path):
             phone = ''
             no_contact_person.append(student_number)
 
-        name = name.upper()
+        if not (name == '' and phone == ''):
+            name = name.upper()
+            match = re.match(r'^(.*?)\,\s(.*?)(?:\s(\w+\.)\s*)?$', name)
+            firstname = match.group(2)
+            middlename = match.group(3)
+            lastname = match.group(1)
+            
+            extension = ''
+            index = firstname.find('JR')
+            if index != -1:
+                firstname = firstname[:index - 1]
+                extension = f' JR'
+            
+            index = firstname.find('.')
+            if index != -1:
+                if firstname[index + 1] != ' ':
+                    firstname = firstname[:index + 1] + ' ' + firstname[index + 1:]
+            name = f'{firstname} {middlename} {lastname}{extension}'
+            
+        if len(phone) == 11:
+            phone = phone[:4] + ' ' + phone[4:]
+            phone = phone[:8] + ' ' + phone[8:]
+        
         bounding_box = draw.textbbox((0, 0), name, font = name_font)
         text_width = bounding_box[2] - bounding_box[0]
         text_horizontal_position = (width - text_width) / 2
@@ -378,11 +401,11 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
     else:
         print(f'{colorama.Fore.WHITE}\nGRADE LEVEL / DEGREE LEVEL: {dataframe['Grade Level / Degree Level'].iloc[0]}')
 
-    crop_face(image_path)
-    circular_face(image_path)
-    overlay_face(image_path, front_layout_path)
-    overlay_name(image_path, data_path)
-    overlay_front_info(image_path, data_path)
+    # crop_face(image_path)
+    # circular_face(image_path)
+    # overlay_face(image_path, front_layout_path)
+    # overlay_name(image_path, data_path)
+    # overlay_front_info(image_path, data_path)
     overlay_back_info(image_path, data_path, back_layout_path)
 
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
@@ -414,8 +437,8 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/GRADE 11 Unitas',
-        data_path = 'xlsx/GRADE 11 ABM - UNITAS.xlsx', 
+        image_path = 'images/Grade 3 St. Augustine',
+        data_path = 'xlsx/GRADE 3 - ST. AUGUSTINE.xlsx', 
         front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
         back_layout_path = 'layout/IDTemplateBack.png',
     )
