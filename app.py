@@ -6,6 +6,7 @@
 # v2.00 - 13/09/24
 # v2.01 - 14/09/24
 # v2.02 - 17/09/24
+# v2.03 - 18/09/24
 # Note: Warnings are muted (Always double check output for error)
 # Not Yet Implemented: Validation and Error Handling
 
@@ -386,11 +387,11 @@ def overlay_back_info(image_path, data_path, back_layout_path):
         progress_bar(counter, len(dataframe))
         
 def main(image_path, data_path, front_layout_path, back_layout_path):
-    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.02')
+    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.03')
     os.system('cls')
     
     colorama.init()
-    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [17/9/24]")
+    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [18/9/24]")
 
     start_time = time.time()
 
