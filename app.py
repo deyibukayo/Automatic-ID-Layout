@@ -118,6 +118,8 @@ def overlay_face(image_path, front_layout_path):
 
     save_path = os.path.join(image_path, 'output/front_layout')
     image_list = os.listdir(save_path)
+    
+    front_layout_orig = cv2.imread(front_layout_path)
 
     counter = 0
     progress_bar(counter, len(image_list))
@@ -125,7 +127,7 @@ def overlay_face(image_path, front_layout_path):
         cropped_face_path = os.path.join(save_path, circular_face)
 
         image = cv2.imread(cropped_face_path, cv2.IMREAD_UNCHANGED)
-        front_layout = cv2.imread(front_layout_path)
+        front_layout = front_layout_orig.copy()
 
         image = cv2.resize(image, (2235, 2235))
         overlay_height, overlay_width = image.shape[:2]
@@ -186,7 +188,6 @@ def overlay_name(image_path, data_path):
         else:
             middle_name = ''
         
-        # middle_name = f'{row['Middle Name'][row_num][0]}.' if pandas.notna(row['Middle Name'][row_num]) else ''
         extension_name = f' {row['Extension Name'][row_num]}' if pandas.notna(row['Extension Name'][row_num]) else ''
         name = f'{row['First Name'][row_num]} {middle_name} {row['Last Name'][row_num]}{extension_name}'
         name = name.upper()
@@ -222,11 +223,10 @@ def overlay_name(image_path, data_path):
         x = center_horizontal - (overlay_width // 2)
         y = 4070
 
-        combined_image = image_layout.copy()
-        combined_image.paste(condensed_text, (x, y), condensed_text)
+        image_layout.paste(condensed_text, (x, y), condensed_text)
 
         output_image_path = os.path.join(save_path, front_layout)
-        combined_image.save(output_image_path)
+        image_layout.save(output_image_path)
         
         counter += 1
         progress_bar(counter, len(layout_list))
@@ -329,17 +329,19 @@ def overlay_back_info(image_path, data_path, back_layout_path):
     font_path_phone = 'font/Montserrat/Montserrat-SemiBold.ttf'
     
     name_size = 200
-    name_position = 400
+    name_position = 430
     name_font = ImageFont.truetype(font_path_name, name_size)
 
     phone_size = 200
     phone_position = 630
     phone_font = ImageFont.truetype(font_path_phone, phone_size)
 
+    image_original = Image.open(back_layout_path)
+    
     counter = 0
     progress_bar(counter, len(dataframe))
     for _, row in dataframe.iterrows():
-        image = Image.open(back_layout_path)
+        image = image_original.copy()
         draw = ImageDraw.Draw(image)
         width, _ = image.size
         
@@ -390,14 +392,38 @@ def overlay_back_info(image_path, data_path, back_layout_path):
                     firstname = firstname[:index + 1] + ' ' + firstname[index + 1:]
             name = f'{firstname} {middlename} {lastname}{extension}'
             
+            image_overlay = Image.new('RGBA', (6000, 400), (0, 0, 0, 0))
+            draw_overlay = ImageDraw.Draw(image_overlay)
+            draw_overlay.text((0, 0), name, font = name_font, fill = (0, 0, 0, 255))
+            bounding_box = image_overlay.getbbox()
+
+            if bounding_box:
+                trimmed_image = image_overlay.crop(bounding_box)
+                trimmed_width, trimmed_height = trimmed_image.size
+
+                max_width = 3604
+                if trimmed_width > max_width:
+                    new_width = max_width
+                    new_height = trimmed_height
+                    condensed_text = trimmed_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                else:
+                    condensed_text = trimmed_image
+            else:
+                condensed_text = trimmed_image
+            
+            overlay_width, _ = condensed_text.size
+
+            left_bound = 120
+            right_bound = 3724
+            center_horizontal = (left_bound + right_bound) // 2
+            x = center_horizontal - (overlay_width // 2)
+            y = name_position
+
+            image.paste(condensed_text, (x, y), condensed_text)
+            
         if len(phone) == 11:
             phone = phone[:4] + ' ' + phone[4:]
             phone = phone[:8] + ' ' + phone[8:]
-        
-        bounding_box = draw.textbbox((0, 0), name, font = name_font)
-        text_width = bounding_box[2] - bounding_box[0]
-        text_horizontal_position = (width - text_width) / 2
-        draw.text((text_horizontal_position, name_position), name, font = name_font, fill = 'black')
 
         bounding_box = draw.textbbox((0, 0), phone, font = phone_font)
         text_width = bounding_box[2] - bounding_box[0]
@@ -462,8 +488,8 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/Grade 4 Our Lady of Grace/Girls',
-        data_path = 'xlsx/GRADE 4 - O.L. OF GRACE.xlsx', 
-        front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
+        image_path = 'images/Grade 7 Charity',
+        data_path = 'xlsx/GRADE 7 - Charity.xlsx', 
+        front_layout_path = 'layout/IDTemplate(2)JuniorHigh.png',
         back_layout_path = 'layout/IDTemplateBack.png',
     )
