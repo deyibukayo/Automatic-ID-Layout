@@ -7,6 +7,7 @@
 # v2.01 - 14/09/24
 # v2.02 - 17/09/24
 # v2.03 - 18/09/24
+# v2.04 - 19/09/24
 # Note: Warnings are muted (Always double check output for error)
 # Not Yet Implemented: Validation and Error Handling
 
@@ -157,7 +158,7 @@ def overlay_name(image_path, data_path):
     save_path = os.path.join(image_path, 'output/front_layout')
     layout_list = os.listdir(save_path)
     
-    dataframe = pandas.read_excel(data_path, skiprows = 6, usecols = 'E:H', dtype = {'Student ID': str})
+    dataframe = pandas.read_excel(data_path, skiprows = 6, usecols = 'E:I', dtype = {'Student ID': str})
     dataframe = dataframe.dropna(how = 'all')
 
     counter = 0
@@ -171,9 +172,23 @@ def overlay_name(image_path, data_path):
             continue
         row = row.to_dict()
         row_num = list(row['Student ID'].keys())[0]
+
+        if pandas.notna(row['Middle Name'][row_num]):
+            middle_name = f'{row['Middle Name'][row_num]}'.upper()
+            if middle_name == 'DE LA CRUZ':
+                middle_name = 'DLC.'
+            elif middle_name == 'DE VILLA':
+                middle_name = 'DV.'
+            elif middle_name == 'LLAGAS':
+                middle_name = 'LL.'
+            else:
+                middle_name = f'{row['Middle Name'][row_num][0]}.'
+        else:
+            middle_name = ''
         
-        middle_name = f'{row['Middle Name'][row_num][0]}.' if pandas.notna(row['Middle Name'][row_num]) else ''
-        name = f'{row['First Name'][row_num]} {middle_name} {row['Last Name'][row_num]}'
+        # middle_name = f'{row['Middle Name'][row_num][0]}.' if pandas.notna(row['Middle Name'][row_num]) else ''
+        extension_name = f' {row['Extension Name'][row_num]}' if pandas.notna(row['Extension Name'][row_num]) else ''
+        name = f'{row['First Name'][row_num]} {middle_name} {row['Last Name'][row_num]}{extension_name}'
         name = name.upper()
 
         image_overlay = Image.new('RGBA', (6000, 400), (0, 0, 0, 0))
@@ -225,7 +240,7 @@ def overlay_front_info(image_path, data_path):
     dataframe = pandas.read_excel(
         data_path, 
         skiprows = 6, 
-        usecols = 'C, E, O:P', 
+        usecols = 'C, E, P:Q', 
         dtype = {'LRN': str, 'Student ID': str})
     dataframe = dataframe.dropna(how = 'all')
     dataframe['LRN'] = dataframe['LRN'].str.replace('LRN-', '', regex = False)
@@ -303,7 +318,7 @@ def overlay_back_info(image_path, data_path, back_layout_path):
     
     dataframe = pandas.read_excel(
         data_path, skiprows = 6, 
-        usecols = 'E, V:W, Y:Z, AB:AC, AE:AF', 
+        usecols = 'E, W:X, Z:AA, AC:AD, AF:AG', 
         dtype = {'Person to notify Contact Number': str, 
                  'Mother\'s Contact Number': str, 
                  'Father\'s Contact Number': str,
@@ -347,6 +362,7 @@ def overlay_back_info(image_path, data_path, back_layout_path):
             phone = ''
             no_contact_person.append(student_number)
 
+        extension = ''
         if not (name == '' and phone == ''):
             name = name.upper()
             match = re.match(r'^(.*?)\,\s(.*?)(?:\s(\w+\.)\s*)?$', name)
@@ -354,11 +370,19 @@ def overlay_back_info(image_path, data_path, back_layout_path):
             middlename = match.group(3)
             lastname = match.group(1)
             
-            extension = ''
-            index = firstname.find('JR')
-            if index != -1:
-                firstname = firstname[:index - 1]
-                extension = f' JR'
+            match = re.search(r'\b(?:[JS]R|[IVX]+)\.?$', str(firstname))
+            if match:
+                extension = f'{match.group()}'
+                firstname = firstname[:(len(firstname) - (len(extension) + 1))]
+
+                match = re.search(r'\b[IV]+\b$', extension)
+                if match:
+                    extension = f' {extension}'
+                else:
+                    if extension[len(extension) - 1] != '.':
+                        extension = f' {extension}.'
+                    else:
+                        extension = f' {extension}'
             
             index = firstname.find('.')
             if index != -1:
@@ -387,26 +411,26 @@ def overlay_back_info(image_path, data_path, back_layout_path):
         progress_bar(counter, len(dataframe))
         
 def main(image_path, data_path, front_layout_path, back_layout_path):
-    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.03')
+    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.04')
     os.system('cls')
     
     colorama.init()
-    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [18/9/24]")
+    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [19/9/24]")
 
     start_time = time.time()
 
-    dataframe = pandas.read_excel(data_path, skiprows=6, usecols='O:P')
+    dataframe = pandas.read_excel(data_path, skiprows=6, usecols='P:Q')
     dataframe = dataframe.dropna()
     if dataframe['Track & Strand / Course'].iloc[0] != '-':
         print(f'{colorama.Fore.WHITE}\nGRADE LEVEL / DEGREE LEVEL: {dataframe['Grade Level / Degree Level'].iloc[0]} - {dataframe['Track & Strand / Course'].iloc[0]}')
     else:
         print(f'{colorama.Fore.WHITE}\nGRADE LEVEL / DEGREE LEVEL: {dataframe['Grade Level / Degree Level'].iloc[0]}')
 
-    # crop_face(image_path)
-    # circular_face(image_path)
-    # overlay_face(image_path, front_layout_path)
-    # overlay_name(image_path, data_path)
-    # overlay_front_info(image_path, data_path)
+    crop_face(image_path)
+    circular_face(image_path)
+    overlay_face(image_path, front_layout_path)
+    overlay_name(image_path, data_path)
+    overlay_front_info(image_path, data_path)
     overlay_back_info(image_path, data_path, back_layout_path)
 
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
@@ -438,8 +462,8 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/Grade 3 St. Augustine',
-        data_path = 'xlsx/GRADE 3 - ST. AUGUSTINE.xlsx', 
+        image_path = 'images/Grade 4 Our Lady of Grace/Girls',
+        data_path = 'xlsx/GRADE 4 - O.L. OF GRACE.xlsx', 
         front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
         back_layout_path = 'layout/IDTemplateBack.png',
     )
