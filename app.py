@@ -183,6 +183,8 @@ def overlay_name(image_path, data_path):
                 middle_name = 'DV.'
             elif middle_name == 'LLAGAS':
                 middle_name = 'LL.'
+            elif middle_name == 'SAN JUAN':
+                middle_name = 'SJ.'
             else:
                 middle_name = f'{row['Middle Name'][row_num][0]}.'
         else:
@@ -488,8 +490,8 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/Grade 7 Charity',
-        data_path = 'xlsx/GRADE 7 - Charity.xlsx', 
-        front_layout_path = 'layout/IDTemplate(2)JuniorHigh.png',
-        back_layout_path = 'layout/IDTemplateBack.png',
+        image_path = 'images/GRADE 12 Pietas',
+        data_path = 'xlsx/GRADE 12 HUMSS - PIETAS.xlsx', 
+        front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
+        back_layout_path = 'layout/IDTemplateBack-temp.png',
     )
