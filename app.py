@@ -372,7 +372,10 @@ def overlay_back_info(image_path, data_path, back_layout_path):
             name = name.upper()
             match = re.match(r'^(.*?)\,\s(.*?)(?:\s(\w+\.)\s*)?$', name)
             firstname = match.group(2)
-            middlename = match.group(3)
+            if match.group(3) is not None:
+                middlename = match.group(3)
+            else:
+                middlename = ''
             lastname = match.group(1)
             
             match = re.search(r'\b(?:[JS]R|[IVX]+)\.?$', str(firstname))
@@ -455,11 +458,11 @@ def main(section, image_path, data_path, front_layout_path, back_layout_path):
 
     start_time = time.time()
 
-    crop_face(image_path)
-    circular_face(image_path)
-    overlay_face(image_path, front_layout_path)
-    overlay_name(image_path, data_path)
-    overlay_front_info(section, image_path, data_path)
+    # crop_face(image_path)
+    # circular_face(image_path)
+    # overlay_face(image_path, front_layout_path)
+    # overlay_name(image_path, data_path)
+    # overlay_front_info(section, image_path, data_path)
     overlay_back_info(image_path, data_path, back_layout_path)
 
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
@@ -491,9 +494,9 @@ def main(section, image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        section = 'St. Raphael',
-        image_path = 'images/Kindergarten',
-        data_path = 'xlsx/KINDERGARTEN - ST. RAPHAEL.xlsx', 
-        front_layout_path = 'layout/IDTemplate(2)PreSchool.png',
+        section = 'St. Augustine',
+        image_path = 'images/Grade 3 St. Augustine',
+        data_path = 'xlsx/GRADE 3 - ST. AUGUSTINE.xlsx', 
+        front_layout_path = 'layout/IDTemplate(2)GradeSchool.png',
         back_layout_path = 'layout/IDTemplateBack.png'
     )
