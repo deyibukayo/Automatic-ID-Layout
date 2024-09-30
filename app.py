@@ -8,6 +8,7 @@
 # v2.02 - 17/09/24
 # v2.03 - 18/09/24
 # v2.04 - 19/09/24
+# v2.05 - 30/09/24
 # Note: Warnings are muted (Always double check output for error)
 # Not Yet Implemented: Validation and Error Handling
 
@@ -233,7 +234,7 @@ def overlay_name(image_path, data_path):
         counter += 1
         progress_bar(counter, len(layout_list))
 
-def overlay_front_info(image_path, data_path):
+def overlay_front_info(section, image_path, data_path):
     print(colorama.Fore.CYAN + '[5/6]: OVERLAYING STUDENT INFORMATION IN FRONT LAYOUT')
 
     save_path = os.path.join(image_path, 'output/front_layout')
@@ -262,26 +263,26 @@ def overlay_front_info(image_path, data_path):
         image = Image.open(image_path)
         draw = ImageDraw.Draw(image)
         
-        designation_font = 'font/Montserrat/Montserrat-MediumItalic.ttf'
+        year_section_font = 'font/Montserrat/Montserrat-MediumItalic.ttf'
         lrn_id_font = 'font/ChaparralPro/ChaparralPro-Bold.otf'
 
         left_bound = 635
         right_bound = 3775
 
-        des_font = ImageFont.truetype(designation_font, 180)
+        year_section_font = ImageFont.truetype(year_section_font, 180)
         grade = f'{row['Grade Level / Degree Level'][row_num]}'
         track = f' - {row['Track & Strand / Course'][row_num]}'
         if row['Track & Strand / Course'][row_num] == 'ACADEMIC TRACKS - Accounting, Business Management':
-            track = ' - ABM'
+            track = ' ABM'
         elif row['Track & Strand / Course'][row_num] == 'ACADEMIC TRACKS - Humanities and Social Sciences':
-            track = ' - HUMSS'
+            track = ' HUMSS'
         elif row['Track & Strand / Course'][row_num] == 'ACADEMIC TRACKS - Science, Technology, Engineering, and Mathematics':
-            track = ' - STEM'
+            track = ' STEM'
         elif row['Track & Strand / Course'][row_num] == 'TECHNICAL VOCATIONAL LIVELIHOOD TRACKS - Home Economics':
-            track = ' - TVL'
+            track = ' TVL'
         elif row['Track & Strand / Course'][row_num] == '-':
             track = ''
-        designation = f'{grade}{track}'
+        year_section = f'{grade}{track} - {section}'
         
         lrn_font = ImageFont.truetype(lrn_id_font, 225)
         if pandas.notna(row['LRN'][row_num]):
@@ -293,9 +294,9 @@ def overlay_front_info(image_path, data_path):
         id_no_font = ImageFont.truetype(lrn_id_font, 175)
         student_number = f'Student No.: {row['Student ID'][row_num]}'
         
-        text_horizontal_position = text_center_position(draw, designation, des_font, left_bound, right_bound)
+        text_horizontal_position = text_center_position(draw, year_section, year_section_font, left_bound, right_bound)
         text_vertical_position = 4300
-        draw.text((text_horizontal_position, text_vertical_position), designation, font = des_font, fill = 'white')
+        draw.text((text_horizontal_position, text_vertical_position), year_section, font = year_section_font, fill = 'white')
         
         text_horizontal_position = text_center_position(draw, lrn_number, lrn_font, left_bound, right_bound)
         text_vertical_position = 4890
@@ -438,27 +439,27 @@ def overlay_back_info(image_path, data_path, back_layout_path):
         counter += 1
         progress_bar(counter, len(dataframe))
         
-def main(image_path, data_path, front_layout_path, back_layout_path):
-    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.04')
+def main(section, image_path, data_path, front_layout_path, back_layout_path):
+    os.system(f'title Automated ID Layout Tool by BUKAYO :) v2.05')
     os.system('cls')
     
     colorama.init()
-    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [19/9/24]")
-
-    start_time = time.time()
-
+    print(colorama.Fore.YELLOW + "This project was lazily made by BUKAYO :) [30/9/24]")
+    
     dataframe = pandas.read_excel(data_path, skiprows=6, usecols='P:Q')
     dataframe = dataframe.dropna()
     if dataframe['Track & Strand / Course'].iloc[0] != '-':
-        print(f'{colorama.Fore.WHITE}\nGRADE LEVEL / DEGREE LEVEL: {dataframe['Grade Level / Degree Level'].iloc[0]} - {dataframe['Track & Strand / Course'].iloc[0]}')
+        print(f'{colorama.Fore.WHITE}\nGRADE LEVEL & SECTION: {dataframe['Grade Level / Degree Level'].iloc[0]} {dataframe['Track & Strand / Course'].iloc[0]} - {section}')
     else:
-        print(f'{colorama.Fore.WHITE}\nGRADE LEVEL / DEGREE LEVEL: {dataframe['Grade Level / Degree Level'].iloc[0]}')
+        print(f'{colorama.Fore.WHITE}\nGRADE LEVEL & SECTION: {dataframe['Grade Level / Degree Level'].iloc[0]} - {section}')
+
+    start_time = time.time()
 
     crop_face(image_path)
     circular_face(image_path)
     overlay_face(image_path, front_layout_path)
     overlay_name(image_path, data_path)
-    overlay_front_info(image_path, data_path)
+    overlay_front_info(section, image_path, data_path)
     overlay_back_info(image_path, data_path, back_layout_path)
 
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
@@ -490,8 +491,9 @@ def main(image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        image_path = 'images/GRADE 12 Pietas',
-        data_path = 'xlsx/GRADE 12 HUMSS - PIETAS.xlsx', 
-        front_layout_path = 'layout/IDTemplate(2)SeniorHigh.png',
-        back_layout_path = 'layout/IDTemplateBack-temp.png',
+        section = 'St. Raphael',
+        image_path = 'images/Kindergarten',
+        data_path = 'xlsx/KINDERGARTEN - ST. RAPHAEL.xlsx', 
+        front_layout_path = 'layout/IDTemplate(2)PreSchool.png',
+        back_layout_path = 'layout/IDTemplateBack.png'
     )
