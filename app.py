@@ -64,7 +64,8 @@ def crop_face(image_path):
         loaded_student_image = cv2.imread(student_image_path)
         gray_image = cv2.cvtColor(loaded_student_image, cv2.COLOR_BGR2GRAY)
 
-        faces = face_detection_model.detectMultiScale(gray_image, scaleFactor = 1.3, minNeighbors = 6, minSize=(600, 600))
+        # faces = face_detection_model.detectMultiScale(gray_image, scaleFactor = 1.3, minNeighbors = 6, minSize=(600, 600))
+        faces = face_detection_model.detectMultiScale(gray_image, scaleFactor = 1.05, minNeighbors = 6, minSize=(600, 600))
 
         for _, (x, y, w, h) in enumerate(faces):
             
@@ -76,7 +77,7 @@ def crop_face(image_path):
 
             output_image_path = os.path.join(output_path, image)
             cv2.imwrite(output_image_path, cropped_face)
-            
+
         counter += 1
         progress_bar(counter, len(image_files))
 
@@ -458,12 +459,12 @@ def main(section, image_path, data_path, front_layout_path, back_layout_path):
 
     start_time = time.time()
 
-    # crop_face(image_path)
-    # circular_face(image_path)
-    # overlay_face(image_path, front_layout_path)
-    # overlay_name(image_path, data_path)
-    # overlay_front_info(section, image_path, data_path)
-    overlay_back_info(image_path, data_path, back_layout_path)
+    crop_face(image_path)
+    circular_face(image_path)
+    overlay_face(image_path, front_layout_path)
+    overlay_name(image_path, data_path)
+    overlay_front_info(section, image_path, data_path)
+    # overlay_back_info(image_path, data_path, back_layout_path)
 
     print(f'{colorama.Fore.GREEN}\nID DATA AND IMAGE PROCESSING COMPLETE')
     
@@ -494,9 +495,9 @@ def main(section, image_path, data_path, front_layout_path, back_layout_path):
 
 if __name__ == '__main__':
     main(
-        section = 'St. Augustine',
-        image_path = 'images/Grade 3 St. Augustine',
-        data_path = 'xlsx/GRADE 3 - ST. AUGUSTINE.xlsx', 
+        section = 'St. Ambrose',
+        image_path = 'images/Grade 2 St. Ambrose/temp',
+        data_path = 'xlsx/GRADE 2 - ST. AMBROSE.xlsx', 
         front_layout_path = 'layout/IDTemplate(2)GradeSchool.png',
         back_layout_path = 'layout/IDTemplateBack.png'
     )
